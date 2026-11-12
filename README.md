@@ -24,8 +24,8 @@ All of it is in one file, `interactive.zsh`:
 ## Install
 
 1. Install [Homebrew](https://brew.sh).
-2. Clone this repo to `~/Workspace/mac-setup`.
-3. Run `./install.sh`.
+2. Clone this repo anywhere you like and go into it.
+3. Run `./install.sh` from there.
 4. Open a new terminal.
 
 `install.sh` does three things, each skipped if already done:
@@ -53,8 +53,9 @@ above them.
 ## Changing things
 
 `~/.config/zsh/interactive.zsh` is a link to the file in this repo, so edits are
-live in the next terminal and show up in `git diff` here. If you move this
-folder, run `./install.sh` again to fix the link.
+live in the next terminal and show up in `git diff` here. The link points at
+wherever you cloned the repo, so if you move or rename that folder, run
+`./install.sh` again to fix it.
 
 ## Not in here
 
