@@ -1,6 +1,7 @@
 #!/bin/bash
 # Set up how the terminal behaves: prompt, key bindings, suggestions,
-# highlighting, fuzzy finder. Nothing else.
+# highlighting, fuzzy finder, plus the `reload` and `killport` commands.
+# Nothing else.
 #
 #   ./install.sh
 #
@@ -8,10 +9,8 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "$0")" && pwd)"
-SRC="$REPO/interactive.zsh"
-DEST="$HOME/.config/zsh/interactive.zsh"
+CONF="$HOME/.config/zsh"
 ZSHRC="$HOME/.zshrc"
-SOURCE_LINE='[ -f ~/.config/zsh/interactive.zsh ] && source ~/.config/zsh/interactive.zsh'
 
 # ── 1. The six Homebrew tools interactive.zsh uses ───────────────────────────
 BREW="$(command -v brew || true)"
@@ -23,30 +22,38 @@ fi
 # --no-upgrade: install what is missing, never upgrade what is already there.
 "$BREW" bundle --no-upgrade --file "$REPO/Brewfile"
 
-# ── 2. Link interactive.zsh into ~/.config/zsh ───────────────────────────────
-# A link, so the copy in this repo is the one zsh reads.
-mkdir -p "$(dirname "$DEST")"
-if [[ -L "$DEST" && "$(readlink "$DEST")" == "$SRC" ]]; then
-  echo "ok        ~/.config/zsh/interactive.zsh"
-else
-  if [[ -e "$DEST" || -L "$DEST" ]]; then
-    BACKUP="$DEST.backup-$(date +%Y%m%d-%H%M%S)"
-    mv "$DEST" "$BACKUP"
-    echo "backed up existing file to $BACKUP"
-  fi
-  ln -s "$SRC" "$DEST"
-  echo "linked    ~/.config/zsh/interactive.zsh"
-fi
+# ── 2. Link each file into ~/.config/zsh, and make ~/.zshrc load it ──────────
+# A link, so the copy in this repo is the one zsh reads. ~/.zshrc gets one line
+# at the end per file, only if no line there mentions the file yet; nothing
+# else in ~/.zshrc is touched.
+mkdir -p "$CONF"
+STAMP="$(date +%Y%m%d-%H%M%S)"
 
-# ── 3. Make ~/.zshrc load it ─────────────────────────────────────────────────
-# Adds one line at the end, only if no line mentions interactive.zsh yet.
-# Nothing else in ~/.zshrc is touched.
-if [[ -f "$ZSHRC" ]] && grep -q 'interactive\.zsh' "$ZSHRC"; then
-  echo "ok        ~/.zshrc already loads it"
-else
-  printf '\n# Prompt, shell options, fzf, autosuggestions, syntax highlighting\n%s\n' "$SOURCE_LINE" >> "$ZSHRC"
-  echo "added     one line to ~/.zshrc"
-fi
+install_file() {
+  local name="$1" comment="$2"
+  local src="$REPO/$name" dest="$CONF/$name"
+
+  if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
+    echo "ok        ~/.config/zsh/$name"
+  else
+    if [[ -e "$dest" || -L "$dest" ]]; then
+      mv "$dest" "$dest.backup-$STAMP"
+      echo "backed up existing file to $dest.backup-$STAMP"
+    fi
+    ln -s "$src" "$dest"
+    echo "linked    ~/.config/zsh/$name"
+  fi
+
+  if [[ -f "$ZSHRC" ]] && grep -qF "$name" "$ZSHRC"; then
+    echo "ok        ~/.zshrc already loads $name"
+  else
+    printf '\n# %s\n[ -f ~/.config/zsh/%s ] && source ~/.config/zsh/%s\n' "$comment" "$name" "$name" >> "$ZSHRC"
+    echo "added     one line to ~/.zshrc for $name"
+  fi
+}
+
+install_file interactive.zsh "Prompt, shell options, fzf, autosuggestions, syntax highlighting"
+install_file extras.zsh      "reload and killport"
 
 echo
 echo "Done. Open a new terminal to see it."

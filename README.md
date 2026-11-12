@@ -1,12 +1,12 @@
 # mac-setup
 
 How my terminal behaves, without oh-my-zsh or powerlevel10k: the prompt, key
-bindings, suggestions, highlighting and fuzzy finder. Nothing else. It is not a
-full machine setup.
+bindings, suggestions, highlighting and fuzzy finder, plus two small commands.
+Nothing else. It is not a full machine setup.
 
 ## What you get
 
-All of it is in one file, `interactive.zsh`:
+Two files. `interactive.zsh` holds the terminal behaviour:
 
 - **Prompt:** the current folder on one line and `❯` on the next, green or red
   by the last command's result. Once a command is entered, its prompt collapses
@@ -21,6 +21,14 @@ All of it is in one file, `interactive.zsh`:
 - **Folders:** type a folder name to `cd` into it; `...` and `....` go up two
   and three levels.
 
+`extras.zsh` holds two commands:
+
+- **`reload`** restarts the shell, so config changes take effect.
+- **`killport`** opens a picker listing the TCP ports your processes are
+  listening on, plus your orphaned processes that hold no port. Type to filter,
+  Tab to mark several, Enter to stop them, Esc to leave. Piped, it prints the
+  list instead.
+
 ## Install
 
 1. Install [Homebrew](https://brew.sh).
@@ -32,8 +40,8 @@ All of it is in one file, `interactive.zsh`:
 
 1. Installs the six tools in the `Brewfile`. It never upgrades anything already
    installed.
-2. Links `interactive.zsh` to `~/.config/zsh/interactive.zsh`.
-3. Adds one line to the end of `~/.zshrc` that loads it. Nothing else in
+2. Links `interactive.zsh` and `extras.zsh` into `~/.config/zsh/`.
+3. Adds one line per file to the end of `~/.zshrc` to load it. Nothing else in
    `~/.zshrc` is touched.
 
 If your `~/.zshrc` has aliases that redefine `grep` or `find`, move that line
@@ -52,7 +60,7 @@ above them.
 
 ## Changing things
 
-`~/.config/zsh/interactive.zsh` is a link to the file in this repo, so edits are
+The files in `~/.config/zsh/` are links to the ones in this repo, so edits are
 live in the next terminal and show up in `git diff` here. The link points at
 wherever you cloned the repo, so if you move or rename that folder, run
 `./install.sh` again to fix it.
