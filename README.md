@@ -1,7 +1,7 @@
 # mac-setup
 
 How my terminal behaves, without oh-my-zsh or powerlevel10k: the prompt, key
-bindings, suggestions, highlighting and fuzzy finder, plus two small commands.
+bindings, suggestions, highlighting and fuzzy finder, plus a few small commands.
 Nothing else. It is not a full machine setup.
 
 ## What you get
@@ -21,8 +21,11 @@ Two files. `interactive.zsh` holds the terminal behaviour:
 - **Folders:** type a folder name to `cd` into it; `...` and `....` go up two
   and three levels.
 
-`extras.zsh` holds two commands:
+`extras.zsh` holds a few commands:
 
+- **`ls`, `ll`, `lt`** list files through `eza`: folders first, `ll` with details
+  and hidden files, `lt` as a tree two levels deep (`lt -L 4` for deeper).
+- **`cat`, `grep`, `find`** run `bat`, `rg` and `fd` instead.
 - **`reload`** restarts the shell, so config changes take effect.
 - **`reap`** opens a picker listing the TCP ports your processes are
   listening on, plus your orphaned processes that hold no port. Type to filter,
@@ -38,25 +41,23 @@ Two files. `interactive.zsh` holds the terminal behaviour:
 
 `install.sh` does three things, each skipped if already done:
 
-1. Installs the six tools in the `Brewfile`. It never upgrades anything already
+1. Installs the seven tools in the `Brewfile`. It never upgrades anything already
    installed.
 2. Links `interactive.zsh` and `extras.zsh` into `~/.config/zsh/`.
 3. Adds one line per file to the end of `~/.zshrc` to load it. Nothing else in
    `~/.zshrc` is touched.
 
-If your `~/.zshrc` has aliases that redefine `grep` or `find`, move that line
-above them.
-
-## The six tools
+## The seven tools
 
 | Tool | Why |
 |---|---|
 | `fzf` | Ctrl-R and Ctrl-T |
 | `zsh-autosuggestions` | Suggestions as you type |
 | `zsh-syntax-highlighting` | Command colouring |
-| `fd` | Lists files for Ctrl-T |
-| `bat` | Previews a file in Ctrl-T |
-| `eza` | Previews a folder in Ctrl-T |
+| `fd` | Lists files for Ctrl-T; the `find` alias |
+| `bat` | Previews a file in Ctrl-T; the `cat` alias |
+| `ripgrep` | The `grep` alias |
+| `eza` | Previews a folder in Ctrl-T; the `ls`, `ll` and `lt` aliases |
 
 ## Changing things
 

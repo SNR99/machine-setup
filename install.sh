@@ -1,6 +1,7 @@
 #!/bin/bash
 # Set up how the terminal behaves: prompt, key bindings, suggestions,
-# highlighting, fuzzy finder, plus the `reload` and `reap` commands.
+# highlighting, fuzzy finder, plus the eza aliases and the `reload` and `reap`
+# commands.
 # Nothing else.
 #
 #   ./install.sh
@@ -12,7 +13,7 @@ REPO="$(cd "$(dirname "$0")" && pwd)"
 CONF="$HOME/.config/zsh"
 ZSHRC="$HOME/.zshrc"
 
-# ── 1. The six Homebrew tools interactive.zsh uses ───────────────────────────
+# ── 1. The Homebrew tools the two files use ──────────────────────────────────
 BREW="$(command -v brew || true)"
 [[ -z "$BREW" && -x /opt/homebrew/bin/brew ]] && BREW=/opt/homebrew/bin/brew
 if [[ -z "$BREW" ]]; then
@@ -53,7 +54,7 @@ install_file() {
 }
 
 install_file interactive.zsh "Prompt, shell options, fzf, autosuggestions, syntax highlighting"
-install_file extras.zsh      "reload and reap"
+install_file extras.zsh      "Tool aliases, reload and reap"
 
 echo
 echo "Done. Open a new terminal to see it."

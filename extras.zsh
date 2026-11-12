@@ -1,5 +1,16 @@
-# Small commands: `reload` and `reap`.
-# Sourced from ~/.zshrc by install.sh.
+# Small commands: aliases to modern tools, `reload` and `reap`.
+# Sourced from ~/.zshrc by install.sh, after everything else, so the grep and
+# find aliases below can't break scripts that are sourced earlier.
+
+# File listings through eza. lt shows 2 levels; `lt -L 4` goes deeper.
+alias ls="eza --group-directories-first"
+alias ll="eza -la --group-directories-first"
+alias lt="eza --tree --level=2"
+
+# Modern replacements, all installed by the Brewfile.
+alias cat="bat --paging=never"
+alias grep="rg"
+alias find="fd"
 
 # Restart the shell. exec zsh, not `source ~/.zshrc`: re-sourcing runs init
 # scripts twice (compinit doesn't like it) and with any aliases already active,
