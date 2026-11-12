@@ -26,6 +26,9 @@ Two files. `interactive.zsh` holds the terminal behaviour:
 - **`ls`, `ll`, `lt`** list files through `eza`: folders first, `ll` with details
   and hidden files, `lt` as a tree two levels deep (`lt -L 4` for deeper).
 - **`cat`, `grep`, `find`** run `bat`, `rg` and `fd` instead.
+- **`c`** copies to the clipboard: `pwd | c`.
+- **Mouse reset:** before each prompt, mouse tracking left on by a dropped SSH
+  session is turned off, so clicks don't print junk.
 - **`reload`** restarts the shell, so config changes take effect.
 - **`reap`** opens a picker listing the TCP ports your processes are
   listening on, plus your orphaned processes that hold no port. Type to filter,

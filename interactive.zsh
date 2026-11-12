@@ -25,8 +25,8 @@ add-zsh-hook precmd _gap_before_prompt
 
 # Shell behaviour
 setopt auto_cd auto_pushd pushd_ignore_dups interactive_comments
-# History: shared between open terminals, each command kept once
-setopt share_history hist_ignore_all_dups hist_save_no_dups
+# History: shared between open terminals, each command kept once, with a timestamp
+setopt share_history hist_ignore_all_dups hist_save_no_dups extended_history
 
 # Tab completion: start it unless ~/.zshrc already has (it must only start once)
 (( $+functions[compdef] )) || { autoload -Uz compinit && compinit }

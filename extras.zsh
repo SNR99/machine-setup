@@ -12,6 +12,15 @@ alias cat="bat --paging=never"
 alias grep="rg"
 alias find="fd"
 
+# Copy to the clipboard: `pwd | c`
+alias c="pbcopy"
+
+# Before each prompt, turn off mouse tracking that a dropped SSH session or a
+# crashed terminal app may have left on (otherwise clicks print junk).
+_reset_mouse_mode() { printf '\e[?1000l\e[?1002l\e[?1003l\e[?1006l' > /dev/tty }
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _reset_mouse_mode
+
 # Restart the shell. exec zsh, not `source ~/.zshrc`: re-sourcing runs init
 # scripts twice (compinit doesn't like it) and with any aliases already active,
 # whereas a fresh exec parses everything in the same order as a new terminal.
