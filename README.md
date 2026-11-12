@@ -24,7 +24,7 @@ Two files. `interactive.zsh` holds the terminal behaviour:
 `extras.zsh` holds two commands:
 
 - **`reload`** restarts the shell, so config changes take effect.
-- **`killport`** opens a picker listing the TCP ports your processes are
+- **`reap`** opens a picker listing the TCP ports your processes are
   listening on, plus your orphaned processes that hold no port. Type to filter,
   Tab to mark several, Enter to stop them, Esc to leave. Piped, it prints the
   list instead.

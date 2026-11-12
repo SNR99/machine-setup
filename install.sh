@@ -1,6 +1,6 @@
 #!/bin/bash
 # Set up how the terminal behaves: prompt, key bindings, suggestions,
-# highlighting, fuzzy finder, plus the `reload` and `killport` commands.
+# highlighting, fuzzy finder, plus the `reload` and `reap` commands.
 # Nothing else.
 #
 #   ./install.sh
@@ -53,7 +53,7 @@ install_file() {
 }
 
 install_file interactive.zsh "Prompt, shell options, fzf, autosuggestions, syntax highlighting"
-install_file extras.zsh      "reload and killport"
+install_file extras.zsh      "reload and reap"
 
 echo
 echo "Done. Open a new terminal to see it."

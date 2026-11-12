@@ -1,4 +1,4 @@
-# Small commands: `reload` and `killport`.
+# Small commands: `reload` and `reap`.
 # Sourced from ~/.zshrc by install.sh.
 
 # Restart the shell. exec zsh, not `source ~/.zshrc`: re-sourcing runs init
@@ -6,14 +6,14 @@
 # whereas a fresh exec parses everything in the same order as a new terminal.
 alias reload="exec zsh"
 
-# killport: pick processes to stop from an interactive list (needs fzf).
+# reap: pick processes to stop from an interactive list (needs fzf).
 # The list has every TCP port your own processes are listening on, then your
 # orphaned processes that hold no port. Type to filter, Tab to mark several,
 # Enter to stop the marked ones (SIGTERM, then SIGKILL for survivors), Esc to
 # leave. When the output is piped, it prints the list instead.
 
 # Prints one "PORT PID COMMAND PARENT" row per entry, no header.
-_killport_rows() {
+_reap_rows() {
   # PARENT: who started each process. A process whose parent died is adopted by
   # launchd (PID 1) — but so is everything launchd starts itself (apps, system
   # agents). `launchctl list` gives the PIDs launchd manages as jobs, so
@@ -60,14 +60,14 @@ _killport_rows() {
   done < <(ps -u "$USER" -o pid=,ppid=,comm=)
 }
 
-killport() {
+reap() {
   if (( $# )); then
-    print -u2 "killport takes no arguments: run it and pick from the list."
+    print -u2 "reap takes no arguments: run it and pick from the list."
     return 2
   fi
 
   local rows header
-  rows=$(_killport_rows)
+  rows=$(_reap_rows)
   if [[ -z $rows ]]; then
     print "Nothing is listening on a port, and there are no orphaned processes."
     return 0
