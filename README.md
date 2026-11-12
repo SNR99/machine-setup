@@ -1,4 +1,4 @@
-# mac-setup
+# machine-setup
 
 How my terminal behaves, without oh-my-zsh or powerlevel10k: the prompt, key
 bindings, suggestions, highlighting and fuzzy finder, plus a few small commands.
