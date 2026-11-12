@@ -41,12 +41,14 @@ Two files. `interactive.zsh` holds the terminal behaviour:
 2. Clone this repo anywhere you like and go into it.
 3. Run `./install.sh` from there.
 4. Open a new terminal.
+5. Delete the cloned folder if you like; nothing depends on it any more.
 
 `install.sh` does three things, each skipped if already done:
 
 1. Installs the seven tools in the `Brewfile`. It never upgrades anything already
    installed.
-2. Links `interactive.zsh` and `extras.zsh` into `~/.config/zsh/`.
+2. Copies `interactive.zsh` and `extras.zsh` into `~/.config/zsh/`. If a
+   different version is already there, it is kept as `<name>.backup-<time>`.
 3. Adds one line per file to the end of `~/.zshrc` to load it. Nothing else in
    `~/.zshrc` is touched.
 
@@ -64,25 +66,24 @@ Two files. `interactive.zsh` holds the terminal behaviour:
 
 ## Changing things
 
-The files in `~/.config/zsh/` are links to the ones in this repo, so edits are
-live in the next terminal and show up in `git diff` here. The link points at
-wherever you cloned the repo, so if you move or rename that folder, run
-`./install.sh` again to fix it.
+The installed files are plain copies, so editing them changes only that Mac.
+To change the setup itself, clone the repo, edit and commit here, then rerun
+`./install.sh` to pick up the new version.
 
 ## Optional, not installed
 
-Files in `optional/` are kept here but `install.sh` ignores them: nothing links
+Files in `optional/` are kept here but `install.sh` ignores them: nothing copies
 or loads them automatically.
 
 - **`optional/remote.zsh`:** `code-remote` opens a folder on a machine you reach
   over SSH in VS Code; `claude-remote` starts Claude there inside tmux, so it
   survives disconnects. Both tab-complete folder names from that machine.
 
-To use it, link it and load it from `~/.zshrc` yourself, after the
+To use it, copy it and load it from `~/.zshrc` yourself, after the
 `interactive.zsh` line, with your own host and username:
 
 ```sh
-ln -s "$PWD/optional/remote.zsh" ~/.config/zsh/remote.zsh
+cp optional/remote.zsh ~/.config/zsh/remote.zsh
 cat >> ~/.zshrc <<'ZSH'
 REMOTE_HOST=myserver REMOTE_USER=user
 [ -f ~/.config/zsh/remote.zsh ] && source ~/.config/zsh/remote.zsh
