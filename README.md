@@ -76,18 +76,23 @@ Files in `optional/` are kept here but `install.sh` ignores them: nothing copies
 or loads them automatically.
 
 - **`optional/remote.zsh`:** `code-remote` opens a folder on a machine you reach
-  over SSH in VS Code; `claude-remote` starts Claude there inside tmux, so it
-  survives disconnects. Both tab-complete folder names from that machine.
+  over SSH in VS Code, with the VS Code profile named `remote`; `claude-remote`
+  starts Claude there inside tmux, so it survives disconnects and running it
+  again rejoins. Both ask three things in turn:
+  1. **Machine:** picked from the `Host` entries in `~/.ssh/config`.
+  2. **Username:** prefilled with that host's `User`; Enter accepts it.
+  3. **Folder:** browsed one level at a time from that user's home folder.
+     Enter opens the highlighted folder (`./` is the one you're in), → goes
+     in, ← goes up, typing filters, Esc cancels.
 
-To use it, copy it and load it from `~/.zshrc` yourself, after the
-`interactive.zsh` line, with your own host and username:
+  Menus use `fzf` when it's installed, and a numbered list otherwise.
+
+To use it, copy it and load it from `~/.zshrc` yourself. No settings are
+needed:
 
 ```sh
 cp optional/remote.zsh ~/.config/zsh/remote.zsh
-cat >> ~/.zshrc <<'ZSH'
-REMOTE_HOST=myserver REMOTE_USER=user
-[ -f ~/.config/zsh/remote.zsh ] && source ~/.config/zsh/remote.zsh
-ZSH
+echo '[ -f ~/.config/zsh/remote.zsh ] && source ~/.config/zsh/remote.zsh' >> ~/.zshrc
 ```
 
 ## Not in here
