@@ -27,9 +27,21 @@ fi
 
 # ── 2. Put each file in ~/.config/zsh, and make ~/.zshrc load it ─────────────
 # ~/.zshrc gets one line at the end per file, only if no line there mentions
-# the file yet; nothing else in ~/.zshrc is touched.
+# the file yet; nothing else in ~/.zshrc is touched. Before the first line is
+# added, ~/.zshrc is copied to ~/.zshrc.machine-setup-<time>.bak.
 mkdir -p "$CONF"
 STAMP="$(date +%Y%m%d-%H%M%S)"
+ZSHRC_BACKED_UP=
+
+# Copy ~/.zshrc aside once per run, just before it is first changed
+# (there is nothing to copy if this run is creating it)
+backup_zshrc() {
+  [[ -n "$ZSHRC_BACKED_UP" ]] && return 0
+  ZSHRC_BACKED_UP=1
+  [[ -f "$ZSHRC" ]] || return 0
+  cp -p "$ZSHRC" "$ZSHRC.machine-setup-$STAMP.bak"
+  echo "backed up ~/.zshrc to ~/.zshrc.machine-setup-$STAMP.bak"
+}
 
 install_file() {
   local name="$1" comment="$2"
@@ -51,6 +63,7 @@ install_file() {
   if [[ -f "$ZSHRC" ]] && grep -qF "$name" "$ZSHRC"; then
     echo "ok        ~/.zshrc already loads $name"
   else
+    backup_zshrc
     printf '\n# %s\n[ -f ~/.config/zsh/%s ] && source ~/.config/zsh/%s\n' "$comment" "$name" "$name" >> "$ZSHRC"
     echo "added     one line to ~/.zshrc for $name"
   fi

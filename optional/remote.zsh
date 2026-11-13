@@ -8,10 +8,24 @@
 #                     Enter opens, Right goes in, Left goes up
 # Esc or Ctrl-C at any step cancels.
 
-# List the machines named in ~/.ssh/config, skipping patterns like "*"
+# List the machines named in ~/.ssh/config and in the files it Includes,
+# skipping patterns like "*"
 _remote_hosts() {
-  awk 'tolower($1) == "host" { for (i = 2; i <= NF; i++) if ($i !~ /[*?!]/) print $i }' \
-    ~/.ssh/config 2>/dev/null | awk '!seen[$0]++'
+  local file=${1:-$HOME/.ssh/config} depth=${2:-0} line inc f
+  local -a words
+  [[ -r $file ]] && (( depth < 5 )) || return 0
+  while IFS= read -r line || [[ -n $line ]]; do
+    words=(${=line})
+    case ${words[1]:l} in
+      host) print -l -- ${words[2,-1]:#*[*?!]*} ;;
+      include)
+        for inc in ${words[2,-1]}; do
+          inc=${inc/#\~/$HOME}
+          [[ $inc == /* ]] || inc=$HOME/.ssh/$inc
+          for f in ${~inc}(N); do _remote_hosts $f $(( depth + 1 )); done
+        done ;;
+    esac
+  done < $file
 }
 
 # Show a menu of choices (fzf if installed, else a numbered list); prints the pick
@@ -29,7 +43,7 @@ _remote_menu() {
 # Steps 1 and 2: sets REMOTE_HOST and REMOTE_USER
 _remote_pick() {
   local -a hosts
-  hosts=(${(f)"$(_remote_hosts)"})
+  hosts=(${(u)${(f)"$(_remote_hosts)"}})
   if (( ! $#hosts )); then
     print -u2 "No machines found in ~/.ssh/config"
     return 1
@@ -50,10 +64,11 @@ _remote_ssh_opts() {
 }
 
 # List the folders inside a remote folder (empty = home). The first line of
-# output is that folder's full path; hidden folders are skipped.
+# output is that folder's full path; hidden folders are skipped, and links to
+# folders are included. SSH's own errors (can't connect, wrong user) are shown.
 _remote_ls() {
   ssh -n $REMOTE_SSH "$REMOTE_USER@$REMOTE_HOST" \
-    "cd ${1:+-- ${(q)1}} && pwd && find . -mindepth 1 -maxdepth 1 -type d ! -name '.*'" 2>/dev/null
+    "cd ${1:+-- ${(q)1}} && pwd && find -L . -mindepth 1 -maxdepth 1 -type d ! -name '.*' 2>/dev/null"
 }
 
 # Step 3: browse one level at a time; sets REMOTE_DIR to the chosen folder.
@@ -62,12 +77,18 @@ _remote_ls() {
 #   Left   go up to the parent folder
 #   Esc    cancel
 _remote_pick_dir() {
-  local cur= home= key pick
+  local cur= prev= home= shown key pick
   local -a lines dirs
   while true; do
     lines=(${(f)"$(_remote_ls "$cur")"})
     if (( ! $#lines )); then
-      [[ -z $home ]] && { print -u2 "Couldn't log in to $REMOTE_HOST as $REMOTE_USER"; return 1 }
+      if [[ -z $home ]]; then
+        print -u2 "Couldn't list folders on $REMOTE_HOST as $REMOTE_USER"
+        return 1
+      elif [[ $cur == $prev ]]; then   # the folder we were just in fails too
+        print -u2 "Lost the connection to $REMOTE_HOST"
+        return 1
+      fi
       print -u2 "Can't open $cur"
       cur=$prev
       continue
@@ -75,7 +96,9 @@ _remote_pick_dir() {
     cur=$lines[1]
     [[ -n $home ]] || home=$cur
     dirs=(${(o)${lines[2,-1]#./}/%//})   # ./go -> go/
-    local shown=${cur/#$home/\~}
+    shown=$cur                           # /home/me/go -> ~/go
+    [[ $cur == $home ]] && shown='~'
+    [[ $cur == $home/* ]] && shown="~${cur#$home}"
 
     if (( $+commands[fzf] )); then
       lines=("${(@f)$(print -l -- ./ $dirs | fzf --height=~50% --reverse \
@@ -95,17 +118,21 @@ _remote_pick_dir() {
       esac
     fi
 
-    local prev=$cur
+    prev=$cur
     case $key in
       left)  cur=${cur:h} ;;
-      right) [[ $pick == ./ ]] || cur=$cur/${pick%/} ;;
-      *)     REMOTE_DIR=$cur${${pick:#./}:+/${pick%/}}; return 0 ;;
+      right) [[ -z $pick || $pick == ./ ]] || cur=${cur%/}/${pick%/} ;;
+      *)     REMOTE_DIR=$cur; [[ $pick == ./ ]] || REMOTE_DIR=${cur%/}/${pick%/}; return 0 ;;
     esac
   done
 }
 
 # Open a folder on a remote machine in VS Code, using the "remote" profile
 code-remote() {
+  if ! whence code >/dev/null; then
+    print -u2 "The 'code' command isn't installed. In VS Code, run: Shell Command: Install 'code' command in PATH"
+    return 1
+  fi
   local REMOTE_HOST REMOTE_USER REMOTE_DIR
   local -a REMOTE_SSH
   _remote_pick && _remote_ssh_opts && _remote_pick_dir || return
@@ -119,5 +146,6 @@ claude-remote() {
   local -a REMOTE_SSH
   _remote_pick && _remote_ssh_opts && _remote_pick_dir || return
   local name=${${REMOTE_DIR:t}//[.:]/_}
+  [[ -n $name ]] || name=root   # the folder "/" has no name
   ssh -t $REMOTE_SSH "$REMOTE_USER@$REMOTE_HOST" "cd ${(q)REMOTE_DIR} && exec tmux new-session -A -s ${(q)name} 'exec zsh -lc claude'"
 }

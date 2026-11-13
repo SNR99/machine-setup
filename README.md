@@ -50,7 +50,8 @@ Two files. `interactive.zsh` holds the terminal behaviour:
 2. Copies `interactive.zsh` and `extras.zsh` into `~/.config/zsh/`. If a
    different version is already there, it is kept as `<name>.backup-<time>`.
 3. Adds one line per file to the end of `~/.zshrc` to load it. Nothing else in
-   `~/.zshrc` is touched.
+   `~/.zshrc` is touched. Before adding the first line, it copies `~/.zshrc` to
+   `~/.zshrc.machine-setup-<time>.bak`; a run that adds nothing makes no copy.
 
 ## The seven tools
 
@@ -79,13 +80,18 @@ or loads them automatically.
   over SSH in VS Code, with the VS Code profile named `remote`; `claude-remote`
   starts Claude there inside tmux, so it survives disconnects and running it
   again rejoins. Both ask three things in turn:
-  1. **Machine:** picked from the `Host` entries in `~/.ssh/config`.
+  1. **Machine:** picked from the `Host` entries in `~/.ssh/config` and any
+     files it `Include`s. Add a `Host` block there to add a machine.
   2. **Username:** prefilled with that host's `User`; Enter accepts it.
   3. **Folder:** browsed one level at a time from that user's home folder.
      Enter opens the highlighted folder (`./` is the one you're in), → goes
-     in, ← goes up, typing filters, Esc cancels.
+     in, ← goes up, typing filters, Esc cancels. Hidden folders aren't listed.
 
   Menus use `fzf` when it's installed, and a numbered list otherwise.
+
+  `code-remote` needs VS Code's `code` command and its Remote - SSH extension;
+  if you have no profile named `remote`, VS Code creates an empty one.
+  `claude-remote` needs `tmux`, `zsh` and `claude` on the remote machine.
 
 To use it, copy it and load it from `~/.zshrc` yourself. No settings are
 needed:
